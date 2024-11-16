@@ -1,6 +1,6 @@
 import inquirer from 'inquirer'
 
-class Cards {
+class Card {
     constructor(point, suit) {
         this.point = point;
         this.suit = suit;
@@ -23,26 +23,26 @@ class Cards {
 
 class Deck {
     constructor() {
-        this.card = [];
+        this.cards = [];
         const suits = ['Spade', 'Heart', 'Diamond', 'Club'];
         const points = ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K']
 
         for (const suit of suits) {
             for (const point of points) {
-                this.card.push(new this.card(point, suit))
+                this.cards.push(new Card(point, suit))
             }
         }
     }
 
     shuffle() {
-        for (let i = this.card.length - 1; i > 0; i--) {
+        for (let i = this.cards.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * i)
-            [this.card[i], this.card[j]] = [this.card[j], this.card[i]]
+            [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]]
         }
     }
 
     draw() {
-        return this.card.pop()
+        return this.cards.pop()
     }
 }
 
@@ -75,9 +75,8 @@ class OnHand {
     }
 
     displayCardOnHand() {
-        return this.cards.map((card) => {
-            card.display().join('\n')
-        })
+        return this.cards.map((card) => 
+            card.display()).join('\n')
     }
 }
 
@@ -86,20 +85,42 @@ class BlackJackGame {
         this.deck = new Deck();
         this.deck.shuffle()
         this.playerHand = new OnHand();
-        this.dealerrHand = new OnHand();
+        this.dealerHand = new OnHand();
         this.gameOver = false
     }
 
-    start() {
+    async start() {
         this.playerHand.addCard(this.deck.draw())
         this.playerHand.addCard(this.deck.draw())
         this.dealerHand.addCard(this.deck.draw())
         this.dealerHand.addCard(this.deck.draw())
-    }
+        
+        let playerTurn = true
 
-    showHand() {
-        console.log(`Player's Hand: ${this.playerHand.displayCardOnHand()}\nTotal: ${this.playerHand.getScore()}`)
-        console.log(`Dealer's Hand: ${this.dealerHand.displayCardOnHand()}\nTotal: ${this.dealerHand.getScore()}`)
+        while(playerTurn) {
+
+            console.log("-------------------------")
+
+            console.log(`Player's Hand: ${this.playerHand.displayCardOnHand()}\nTotal: ${this.playerHand.getScore()}`)
+            console.log(`Dealer's Hand: ${this.dealerHand[0].displayCardOnHand()}\nTotal: ${this.dealerHand.getScore()}`)
+
+            console.log("-------------------------")
+
+            const answers = await inquirer.prompt[
+                {
+                    type: "list",
+                    name: "action",
+                    message: "Choose an action:",
+                    choices: ["Hit", "Stand"]
+                }
+            ]
+
+            if (action === "Hit") {
+                this.playerHand.addCard(this.deck.cards.draw())
+            } else {
+                playerTurn = false
+            }
+        }
     }
 }
 
@@ -107,15 +128,10 @@ async function main() {
     console.log("Welcome To Blackjack!!")
 
     const game = new BlackJackGame()
-    await game.start()
+    game.start()
+    game.showHand()
 
     const answers = await inquirer.prompt[
-        {
-            type: "list",
-            name: "hitOrStand",
-            messge: "Choose an action:",
-            choices: ["Hit", "Stand"]
-        },
         {
             type: "confirm",
             name: "continuePlaying",
@@ -123,6 +139,10 @@ async function main() {
             default: true
         }
     ]
+
+    if (action === "Hit") {
+
+    }
 }
 
 main()

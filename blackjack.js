@@ -74,9 +74,9 @@ class OnHand {
     return score;
   }
 
-  displayCardOnHand() {
-    return this.cards.map((card) => card.display()).join("\n");
-  }
+  // displayCardOnHand() {
+  //   return this.cards.map((card) => card.display()).join("\n");
+  // }
 }
 
 class BlackJackGame {
@@ -88,12 +88,26 @@ class BlackJackGame {
     this.gameOver = false;
   }
 
-  showPlayerHand() {
-    console.log("Player's Hand: \n",this.playerHand.displayCardOnHand(), "\nTotal: " , this.playerHand.getScore())
-  }
+  showHand(player, dealer, revealDealerHand = false) {
+    console.log("-------------------------");
 
-  showDealerHand() {
-    console.log("Dealer's Hand: \n", this.dealerHand.displayCardOnHand(), "\nTotal: ", this.dealerHand.getScore())
+    console.log("Player's Hand: ")
+    player.cards.forEach(card => {
+      console.log(card.display())
+    });
+    console.log("Total: ", player.getScore())
+
+    console.log("Dealer's Hand: ")
+    if (revealDealerHand) {
+      dealer.cards.forEach(card => {
+        console.log(card.display())
+      });
+    } else {
+      console.log(dealer.cards[0].display())
+      console.log("{Hidden Card")
+    }
+
+    console.log("-------------------------");
   }
 
   async start() {
@@ -106,12 +120,8 @@ class BlackJackGame {
     let playerTurn = true;
 
     while (playerTurn) {
-      console.log("-------------------------");
 
-      this.showPlayerHand()
-      this.showDealerHand()
-
-      console.log("-------------------------");
+      this.showHand(this.playerHand, this.dealerHand, false)
 
       const answers = await inquirer.prompt([
         {
@@ -121,7 +131,7 @@ class BlackJackGame {
           choices: ["Hit", "Stand"],
         }
       ]);
-      
+
       if (answers.action === "Hit") {
         this.playerHand.addCard(this.deck.draw());
         if (this.playerHand.getScore() > 21) {
@@ -133,6 +143,13 @@ class BlackJackGame {
         playerTurn = false;
       }
     }
+
+    if (this.dealerHand.getScore() < 17) {
+      this.dealerHand.addCard(this.deck.draw());
+      if (this.dealerHand.getScore() > 21) {
+        console.log("Dealer Bust! You win")
+      }
+    } 
 
     if (this.playerHand.getScore() > this.dealerHand.getScore()) {
       console.log("Player win!")
@@ -153,17 +170,19 @@ async function main() {
     const game = new BlackJackGame();
     await game.start();
 
-    const again = await inquirer.prompt[
+    const again = await inquirer.prompt([
       {
         type: "confirm",
         name: "continuePlaying",
         message: "Do you want to play again?",
-        default: true,
+        default: false,
       }
-    ];
+    ]);
 
     playing = again
   }
+
+  console.log("Thank you for playing Blackjack!!!")
 }
 
 main(); 

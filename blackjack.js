@@ -17,7 +17,7 @@ class Card {
   }
 
   display() {
-    return `${this.point} of ${this.suit}`;
+    return ` ${this.point} of ${this.suit}`;
   }
 }
 
@@ -102,9 +102,10 @@ class BlackJackGame {
       dealer.cards.forEach(card => {
         console.log(card.display())
       });
+      console.log("Total: ", dealer.getScore())
     } else {
       console.log(dealer.cards[0].display())
-      console.log("{Hidden Card")
+      console.log(" {Hidden Card}")
     }
 
     console.log("-------------------------");
@@ -135,8 +136,8 @@ class BlackJackGame {
       if (answers.action === "Hit") {
         this.playerHand.addCard(this.deck.draw());
         if (this.playerHand.getScore() > 21) {
+          this.showHand(this.playerHand, this.dealerHand, true)
           console.log("You busted! Dealer win")
-          this.showPlayerHand()
           return
         }
       } else {
@@ -147,15 +148,19 @@ class BlackJackGame {
     if (this.dealerHand.getScore() < 17) {
       this.dealerHand.addCard(this.deck.draw());
       if (this.dealerHand.getScore() > 21) {
+        this.showHand(this.playerHand, this.dealerHand, true)
         console.log("Dealer Bust! You win")
       }
     } 
 
     if (this.playerHand.getScore() > this.dealerHand.getScore()) {
+      this.showHand(this.playerHand, this.dealerHand, true)
       console.log("Player win!")
     } else if (this.playerHand.getScore() < this.dealerHand.getScore()) {
+      this.showHand(this.playerHand, this.dealerHand, true)
       console.log("Dealer win!")
     } else {
+      this.showHand(this.playerHand, this.dealerHand, true)
       console.log("It's a push!")
     }
   }
@@ -179,7 +184,7 @@ async function main() {
       }
     ]);
 
-    playing = again
+    playing = again.continuePlaying
   }
 
   console.log("Thank you for playing Blackjack!!!")
